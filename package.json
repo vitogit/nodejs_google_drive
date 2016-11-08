@@ -1,0 +1,27 @@
+{
+  "name": "gdrive-experiment",
+  "version": "1.0.0",
+  "description": "Google drive persistence test.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "dependencies": {
+    "express": "^4.14.0",
+    "google-auth-library": "^0.9.9",
+    "googleapis": "^14.1.0"
+  },
+  "engines": {
+    "node": "6.4.x",
+    "npm": "3.10.x"
+  },
+  "keywords": [
+    "startkit"
+  ],
+  "author": "vitogit",
+  "license": "MIT"
+}

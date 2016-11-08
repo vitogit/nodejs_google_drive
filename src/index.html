@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>quick demo</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+  </head>
+  <body>
+    <a href="#" id="authorize_link">authorize</a>
+    <a href="#" id="list_files">list files</a>
+  </body>
+
+  <script>
+
+      $( document ).ready(function() {
+        $.get('/authUrl',function(response){
+          if(response) {
+            url = response;
+            console.log('url___'+url)
+          }
+        });
+
+
+        $('#list_files').click(function(){
+          $.get('/listFiles',function(response){
+            if(response) {
+              console.log('list files___'+response)
+            }
+          });
+        })
+
+        $('#authorize_link').click(function(){
+          windowThatWasOpened = window.open(url, "Please sign in with Google", "width=400px,height:400px");
+        })
+
+
+        window.onmessage = function(e) {
+          windowThatWasOpened.close();
+          var urlWithCode = e.data;
+          var idx = urlWithCode.lastIndexOf("code=");
+          var code = urlWithCode.substring(idx + 5).replace("#","");
+          console.log(code);
+          $.get("/tokens?code=" + code, function(response) {
+            console.log(response.data);
+          });
+        };
+      });
+  </script>
+</html>
