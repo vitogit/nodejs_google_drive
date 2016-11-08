@@ -8,6 +8,7 @@
   <body>
     <a href="#" id="authorize_link">authorize</a>
     <a href="#" id="list_files">list files</a>
+    <a href="#" id="create_file">create file</a>
   </body>
 
   <script>
@@ -24,11 +25,30 @@
         $('#list_files').click(function(){
           $.get('/listFiles',function(response){
             if(response) {
+              var files = JSON.parse(response)
+
+              if (files.length == 0) {
+                console.log('No files found.');
+              } else {
+                console.log('Files:');
+                for (var i = 0; i < files.length; i++) {
+                  var file = files[i];
+                  console.log('%s (%s)', file.name, file.id);
+                }
+              }
               console.log('list files___'+response)
             }
           });
         })
 
+        $('#create_file').click(function(){
+          $.get('/createFile',function(response){
+            if(response) {
+              console.log('create file___'+response)
+            }
+          });
+        })
+        
         $('#authorize_link').click(function(){
           windowThatWasOpened = window.open(url, "Please sign in with Google", "width=400px,height:400px");
         })

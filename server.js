@@ -13,7 +13,7 @@ app.use(express.static(__dirname + '/src'));
 var server = app.listen(config.PORT, function() {
   var host = server.address().address;
   var port = server.address().port;
-  console.log('Example app listening at http://%s:%s', host, port);
+  console.log('Listening at http://%s:%s', host, port);
 });
 //
 // function authorize(callback) {
@@ -33,25 +33,8 @@ var OAuth2 = gapi.auth.OAuth2;
 var oauth2Client = new OAuth2(config.CLIENT_ID, config.SECRET_ID, "http://localhost:4000/oauthcallback");
 
 var scopes = [
-  'https://www.googleapis.com/auth/drive.metadata.readonly'
+  'https://www.googleapis.com/auth/drive.file'
 ];
-//
-// var authorized = false;
-// gapi.auth.authorize({
-//     'client_id': config.CLIENT_ID,
-//     'scope': scopes.join(' '),
-//     'immediate': true
-//   }, handleAuthResult);
-//
-// function handleAuthResult(authResult) {
-//   console.log('authResult___'+JSON.stringify(authResult))
-//   if (authResult && !authResult.error) {
-//     authorized = true;
-//     //loadDriveApi();
-//   } else {
-//     authorized = false;
-//   }
-// }
 
 var authUrl = oauth2Client.generateAuthUrl({
   access_type: 'offline', // 'online' (default) or 'offline' (gets refresh_token)
@@ -79,43 +62,44 @@ app.get("/tokens", function(req, res) {
 });
 
 app.get("/listFiles", function(req, res) {
-  listFiles(oauth2Client)
-  res.send("ok");
-});
-
-function listFiles(auth) {
-  var service = gapi.drive('v3');
-  service.files.list({
-    auth: auth,
-    pageSize: 10,
-    fields: "nextPageToken, files(id, name)"
-  }, function(err, response) {
+  listFiles(function(err, response){
     if (err) {
       console.log('The API returned an error: ' + err);
       return;
     }
     var files = response.files;
-    if (files.length == 0) {
-      console.log('No files found.');
-    } else {
-      console.log('Files:');
-      for (var i = 0; i < files.length; i++) {
-        var file = files[i];
-        console.log('%s (%s)', file.name, file.id);
-      }
-    }
-  });
+    res.send(JSON.stringify(files));
+  })
+});
+
+app.get("/createFile", function(req, res) {
+  createFile('test1', function(err,result){
+        if(err) console.log(err) 
+        else res.send(JSON.stringify(result));
+
+    })
+});
+
+var drive = gapi.drive({ version: 'v3', auth: oauth2Client });
+
+
+function listFiles(callback) {
+  drive.files.list({
+    pageSize: 10,
+    fields: "nextPageToken, files(id, name)"
+  }, callback);
 }
 
-// var drive = google.drive({ version: 'v3', auth: oauth2Client });
-//
-// drive.files.create({
-//   resource: {
-//     name: 'Test',
-//     mimeType: 'text/plain'
-//   },
-//   media: {
-//     mimeType: 'text/plain',
-//     body: 'Hello World'
-//   }
-// }, callback);
+
+function createFile(filename, callback) {
+  drive.files.create({
+    resource: {
+      name: filename,
+      mimeType: 'text/plain'
+    },
+    media: {
+      mimeType: 'text/plain',
+      body: 'Hello World'
+    }
+  }, callback);
+}
